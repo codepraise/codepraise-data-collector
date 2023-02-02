@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'database_cleaner/active_record'
-
 # Helper to clean database during test runs
 class DatabaseHelper
   def self.wipe_database
