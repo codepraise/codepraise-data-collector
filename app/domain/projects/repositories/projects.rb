@@ -95,7 +95,8 @@ module CodePraise
                             project_last_maintain: @entity.project_last_maintain,
                             issues: @entity.issues,
                             pulls: @entity.pulls,
-                            downloads: @entity.downloads)
+                            downloads: @entity.downloads,
+                            updated_at: Time.now)
 
           @entity.contributors.each do |contributor|
             unless Members.find_username(contributor.username)
