@@ -16,8 +16,8 @@ Sequel.migration do
       Integer     :issues
       Integer     :pulls
       Integer     :downloads
-      DateTime    :project_start
-      DateTime    :project_last_maintain
+      String      :project_start
+      String      :project_last_maintain
 
       DateTime :created_at
       DateTime :updated_at

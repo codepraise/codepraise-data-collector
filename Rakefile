@@ -1,4 +1,17 @@
 # frozen_string_literal: true
+namespace :run do
+  desc 'Run Collecting Infos from Github'
+
+  task :config do
+    require_relative './init.rb'
+
+    def app = CodePraise::App
+  end
+
+  task :development => :config do
+    app.run
+  end
+end
 
 namespace :db do
   task :config do

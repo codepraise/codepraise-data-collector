@@ -21,8 +21,7 @@ module CodePraise
     end
 
     ENV['DATABASE_URL'] = "sqlite://#{config.DB_FILENAME}"
-    def self.DB
-      Sequel.connect(ENV.fetch('DATABASE_URL'))
-    end
+    DB = Sequel.connect(ENV['DATABASE_URL'])
+    def self.DB = DB
   end
 end

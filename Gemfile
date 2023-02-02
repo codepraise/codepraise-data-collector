@@ -10,6 +10,12 @@ gem 'rake', '~> 13.0'
 # Network
 gem 'http', '~> 5'
 
+# APPLICATION LAYER
+# Service
+gem 'dry-monads', '~> 1.4'
+gem 'dry-transaction', '~> 0.13'
+gem 'dry-validation', '~> 1.7'
+
 # DOMAIN LAYER
 # Validation
 gem 'dry-struct', '~> 1'
