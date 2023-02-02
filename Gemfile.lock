@@ -3,12 +3,35 @@ GEM
   specs:
     addressable (2.8.1)
       public_suffix (>= 2.0.2, < 6.0)
+    concurrent-ruby (1.2.0)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
+    dry-core (1.0.0)
+      concurrent-ruby (~> 1.0)
+      zeitwerk (~> 2.6)
+    dry-inflector (1.0.0)
+    dry-logic (1.5.0)
+      concurrent-ruby (~> 1.0)
+      dry-core (~> 1.0, < 2)
+      zeitwerk (~> 2.6)
+    dry-struct (1.6.0)
+      dry-core (~> 1.0, < 2)
+      dry-types (>= 1.7, < 2)
+      ice_nine (~> 0.11)
+      zeitwerk (~> 2.6)
+    dry-types (1.7.0)
+      concurrent-ruby (~> 1.0)
+      dry-core (~> 1.0, < 2)
+      dry-inflector (~> 1.0, < 2)
+      dry-logic (>= 1.4, < 2)
+      zeitwerk (~> 2.6)
     ffi (1.15.5)
     ffi-compiler (1.0.1)
       ffi (>= 1.0.0)
       rake
+    figaro (1.2.0)
+      thor (>= 0.14.0, < 2)
+    gems (1.2.0)
     http (5.1.1)
       addressable (~> 2.8)
       http-cookie (~> 1.0)
@@ -17,6 +40,7 @@ GEM
     http-cookie (1.0.5)
       domain_name (~> 0.5)
     http-form_data (2.3.0)
+    ice_nine (0.11.2)
     llhttp-ffi (0.4.0)
       ffi-compiler (~> 1.0)
       rake (~> 13.0)
@@ -24,15 +48,22 @@ GEM
     rake (13.0.6)
     sequel (5.65.0)
     sqlite3 (1.6.0-arm64-darwin)
+    thor (1.2.1)
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.8.2)
+    zeitwerk (2.6.6)
 
 PLATFORMS
   arm64-darwin-21
 
 DEPENDENCIES
+  dry-struct (~> 1)
+  dry-types (~> 1)
+  figaro (~> 1.2)
+  gems
   http (~> 5)
+  rake (~> 13.0)
   sequel (~> 5.49)
   sqlite3 (~> 1.4)
 
