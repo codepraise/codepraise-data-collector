@@ -12,7 +12,5 @@ module CodePraise
         owner_name: owner_name, project_name: project_name
       )
     end
-
-    run
   end
 end
