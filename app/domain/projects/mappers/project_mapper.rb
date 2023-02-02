@@ -94,11 +94,11 @@ module CodePraise
         end
 
         def project_start
-          DateTime.parse(@data['created_at'])
+          @data['created_at']
         end
 
         def project_last_maintain
-          DateTime.parse(@data['updated_at'])
+          @data['updated_at']
         end
 
         def downloads

@@ -18,8 +18,8 @@ module CodePraise
       attribute :http_url,      Strict::String
       attribute :owner,         Member
       attribute :contributors,  Strict::Array.of(Member)
-      attribute :project_start, Strict::DateTime
-      attribute :project_last_maintain, Strict::DateTime
+      attribute :project_start, Strict::String
+      attribute :project_last_maintain, Strict::String
       attribute :issues,        Strict::Integer
       attribute :pulls,         Strict::Integer
       attribute :downloads,     Strict::Integer
