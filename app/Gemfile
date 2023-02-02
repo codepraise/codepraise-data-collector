@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+source 'https://rubygems.org'
+ruby File.read('.ruby-version').strip
+
+# network
+gem 'http', '~> 5'
+
+# database
+gem 'sequel', '~> 5.49'
+
+group :development, :test do
+  gem 'sqlite3', '~> 1.4'
+end
