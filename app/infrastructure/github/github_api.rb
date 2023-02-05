@@ -27,11 +27,15 @@ module CodePraise
       end
 
       def git_repo_issues(username, project_name)
-        request = Request.new(@gh_token).issues(username, project_name)
+        request = Request.new(@gh_token).issues(username, project_name, '?state=all')
         result = request.parse
-        pages = request['Link'].scan(/<(https?:\/\/[\S]+)>/)
-        pages.each do |page_url|
-          result += Request.new(@gh_token).get(page_url.first).parse
+
+        page_urls = request['Link'].scan(/<(https?:\/\/[\S]+)>/)
+
+        last_page = page_urls.last.first.match(/page=(\d+)/)[1].to_i
+        (2..last_page).each do |page|
+          puts "page: #{page}"
+          result += Request.new(@gh_token).issues(username, project_name, "?state=all&page=#{page}").parse
         end
         
         result
@@ -57,8 +61,8 @@ module CodePraise
           get(ENDPOINT + 'repos/' + [username, project_name].join('/') + '/contributors')
         end
 
-        def issues(username, project_name)
-          get(ENDPOINT + 'repos/' + [username, project_name].join('/') + '/issues?state=all')
+        def issues(username, project_name, arguments = '')
+          get(ENDPOINT + 'repos/' + [username, project_name].join('/') + '/issues' + arguments)
         end
 
         def get(url)
