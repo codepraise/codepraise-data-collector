@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require_relative 'member.rb'
+require_relative 'issue.rb'
 require 'dry-types'
 require 'dry-struct'
 
@@ -18,10 +19,9 @@ module CodePraise
       attribute :http_url,      Strict::String
       attribute :owner,         Member
       attribute :contributors,  Strict::Array.of(Member)
+      attribute :issues,        Strict::Array.of(Issue)
       attribute :project_start, Strict::String
       attribute :project_last_maintain, Strict::String
-      attribute :issues,        Strict::Integer
-      attribute :pulls,         Strict::Integer
       attribute :downloads,     Strict::Integer
 
       def fullname
@@ -29,7 +29,7 @@ module CodePraise
       end
 
       def to_attr_hash
-        to_hash.reject { |key, _| %i[id owner contributors].include? key }
+        to_hash.reject { |key, _| %i[id owner contributors issues].include? key }
       end
     end
   end
