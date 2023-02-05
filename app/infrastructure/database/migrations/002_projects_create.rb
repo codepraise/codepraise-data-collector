@@ -13,8 +13,6 @@ Sequel.migration do
       String      :ssh_url
       String      :http_url
       Integer     :size
-      Integer     :issues
-      Integer     :pulls
       Integer     :downloads
       String      :project_start
       String      :project_last_maintain
