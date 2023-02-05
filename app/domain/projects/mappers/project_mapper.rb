@@ -16,35 +16,23 @@ module CodePraise
 
       def find(owner_name, project_name)
         data = @gateway.git_repo_data(owner_name, project_name)
-        issues = @gateway.git_repo_issues(owner_name, project_name)
-        build_entity(data, issues)
+        build_entity(data)
       end
 
-      def build_entity(data, issues)
-        DataMapper.new(data, issues, @token, @gateway_class).build_entity
+      def build_entity(data)
+        DataMapper.new(data, @token, @gateway_class).build_entity
       end
 
       # Extracts entity specific elements from data structure
       class DataMapper
-        def initialize(data, issues, token, gateway_class)
+        def initialize(data, token, gateway_class)
           @data = data
-          @issues = count_issues(issues)
           @member_mapper = MemberMapper.new(
             token, gateway_class
           )
-        end
-
-        def count_issues(issues)
-          @issue_count = 0
-          @pull_count = 0
-          issues.each do |issue|
-            if issue['node_id'].include? 'PR_'
-              @pull_count += 1
-            else
-              @issue_count += 1
-            end
-          end
-          [@issue_count, @pull_count]
+          @issue_mapper = IssueMapper.new(
+            token, gateway_class
+          )
         end
 
         def build_entity
@@ -57,10 +45,9 @@ module CodePraise
             http_url: http_url,
             owner: owner,
             contributors: contributors,
+            issues: issues,
             project_start: project_start,
             project_last_maintain: project_last_maintain,
-            issues: @issues[0],
-            pulls: @issues[1],
             downloads: downloads
           )
         end
@@ -91,6 +78,11 @@ module CodePraise
 
         def contributors
           @member_mapper.load_several(@data['contributors_url'])
+        end
+
+        def issues
+          owner_name, project_name = @data['full_name'].split('/')
+          @issue_mapper.load_several(owner_name, project_name)
         end
 
         def project_start

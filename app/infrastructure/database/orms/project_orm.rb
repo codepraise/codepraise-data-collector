@@ -14,9 +14,13 @@ module CodePraise
                    join_table: :projects_members,
                    left_key: :project_id, right_key: :member_id
 
+      one_to_many :issues,
+                  class: :'CodePraise::Database::IssueOrm',
+                  key: :project_id
+
       plugin :timestamps, update_on_create: true
       plugin :association_dependencies
-      add_association_dependencies owner: :delete, contributors: :nullify
+      add_association_dependencies owner: :delete, contributors: :nullify, issues: :delete
 
       def fullname
         "#{owner.username}/#{name}"

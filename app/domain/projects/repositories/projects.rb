@@ -71,7 +71,8 @@ module CodePraise
         Entity::Project.new(
           db_record.to_hash.merge(
             owner: Members.rebuild_entity(db_record.owner),
-            contributors: Members.rebuild_many(db_record.contributors)
+            contributors: Members.rebuild_many(db_record.contributors),
+            issues: Issues.rebuild_many(db_record.issues)
           )
         )
       end
@@ -93,8 +94,6 @@ module CodePraise
                             http_url: @entity.http_url,
                             project_start: @entity.project_start,
                             project_last_maintain: @entity.project_last_maintain,
-                            issues: @entity.issues,
-                            pulls: @entity.pulls,
                             downloads: @entity.downloads,
                             updated_at: Time.now)
 
@@ -113,6 +112,10 @@ module CodePraise
 
             @entity.contributors.each do |contributor|
               db_project.add_contributor(Members.find_or_create(contributor))
+            end
+
+            @entity.issues.each do |issue|
+              db_project.add_issue(Issues.find_or_create(issue))
             end
           end
         end
