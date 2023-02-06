@@ -19,6 +19,27 @@ module CodePraise
         build_entity(data)
       end
 
+      def search(query, order)
+        results = @gateway.git_repo_search(query, order)
+        puts "Found #{results.count} projects"
+
+        projects = results.reject do |proj|
+          puts "Checking #{proj['name']}"
+          begin
+            Gems.total_downloads(proj['name']).empty?
+            false
+          rescue
+            true
+          end
+        end
+
+        puts "Found #{projects.count} actual ruby gem projects"
+        projects.map do |proj|
+          puts "Processing #{proj['name']}"
+          build_entity(proj)
+        end
+      end
+
       def build_entity(data)
         DataMapper.new(data, @token, @gateway_class).build_entity
       end
@@ -94,8 +115,6 @@ module CodePraise
         end
 
         def downloads
-          return 0 if Gems.search(name).empty?
-
           Gems.total_downloads(name)[:total_downloads]
         end
       end

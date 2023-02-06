@@ -65,10 +65,12 @@ module CodePraise
         end
 
         def type
-          if @data['node_id'].include? 'PR_'
+          if @data['html_url'].include? 'pull'
             'pull_request'
-          else
+          elsif @data['html_url'].include? 'issues'
             'issue'
+          else
+            'unknown'
           end
         end
       end

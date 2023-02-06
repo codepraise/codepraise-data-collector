@@ -4,6 +4,7 @@ GEM
     addressable (2.8.1)
       public_suffix (>= 2.0.2, < 6.0)
     concurrent-ruby (1.2.0)
+    csv (3.2.2)
     domain_name (0.5.20190701)
       unf (>= 0.0.5, < 1.0.0)
     dry-configurable (1.0.1)
@@ -79,6 +80,7 @@ GEM
     public_suffix (5.0.1)
     rake (13.0.6)
     sequel (5.65.0)
+    sqlite3 (1.6.0-aarch64-linux)
     sqlite3 (1.6.0-arm64-darwin)
     thor (1.2.1)
     unf (0.1.4)
@@ -87,9 +89,12 @@ GEM
     zeitwerk (2.6.6)
 
 PLATFORMS
+  aarch64-linux
   arm64-darwin-21
 
 DEPENDENCIES
+  concurrent-ruby
+  csv (~> 3.1)
   dry-monads (~> 1.4)
   dry-struct (~> 1)
   dry-transaction (~> 0.13)

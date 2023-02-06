@@ -11,6 +11,8 @@ gem 'rake', '~> 13.0'
 gem 'http', '~> 5'
 
 # APPLICATION LAYER
+
+gem 'csv', '~> 3.1'
 # Service
 gem 'dry-monads', '~> 1.4'
 gem 'dry-transaction', '~> 0.13'

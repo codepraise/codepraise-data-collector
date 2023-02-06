@@ -88,18 +88,25 @@ module CodePraise
         end
 
         def update_project
-          db_project = Database::ProjectOrm.where(origin_id: @entity.origin_id)
-          db_project.update(name: @entity.name,
-                            ssh_url: @entity.ssh_url,
-                            http_url: @entity.http_url,
-                            project_start: @entity.project_start,
-                            project_last_maintain: @entity.project_last_maintain,
-                            downloads: @entity.downloads,
-                            updated_at: Time.now)
+          Database::ProjectOrm.where(origin_id: @entity.origin_id).tap do |db_project|
+            db_project.update(name: @entity.name,
+                              ssh_url: @entity.ssh_url,
+                              http_url: @entity.http_url,
+                              project_start: @entity.project_start,
+                              project_last_maintain: @entity.project_last_maintain,
+                              downloads: @entity.downloads,
+                              updated_at: Time.now)
 
-          @entity.contributors.each do |contributor|
-            unless Members.find_username(contributor.username)
-              db_project.add_contributor(Members.find_or_create(contributor))
+            @entity.contributors.each do |contributor|
+              unless Members.find_username(contributor.username)
+                db_project.add_contributor(Members.find_or_create(contributor))
+              end
+            end
+
+            @entity.issues.each do |issue|
+              unless Issues.find_origin_id(issue.origin_id)
+                db_project.add_issue(Issues.find_or_create(issue))
+              end
             end
           end
         end

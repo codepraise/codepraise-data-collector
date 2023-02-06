@@ -11,6 +11,11 @@ namespace :run do
   task :development => :config do
     app.run
   end
+
+  task :export => :config do
+    require 'csv'
+    app.export
+  end
 end
 
 namespace :db do

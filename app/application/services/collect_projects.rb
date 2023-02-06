@@ -5,10 +5,10 @@ require 'dry/transaction'
 module CodePraise
   module Service
     # Transaction to store project from Github API to database
-    class CollectProjectInfo
+    class CollectProjects
       include Dry::Transaction
 
-      step :find_project
+      step :search_project
       step :store_project
 
       private
@@ -17,9 +17,9 @@ module CodePraise
       GH_NOT_FOUND_MSG = 'Could not find that project on Github'
 
       # Expects input[:owner_name] and input[:project_name]
-      def find_project(input)
-        puts "Getting project #{input[:owner_name]}/#{input[:project_name]} from Github..."
-        input[:project] = project_from_github(input)
+      def search_project(input)
+        puts "Getting projects from Github..."
+        input[:projects] = projects_from_github(input)
         Success(input)
       rescue StandardError => e
         puts e.full_message
@@ -27,14 +27,16 @@ module CodePraise
       end
 
       def store_project(input)
-        puts "Storing project #{input[:owner_name]}/#{input[:project_name]} in database..."
-        project = if project_in_database(input)
-                    Repository::For.entity(input[:project]).update(input[:project])
-                  else
-                    Repository::For.entity(input[:project]).create(input[:project])
-                  end
+        projects = input[:projects].each do |project|
+          puts "Storing #{project.fullname} in database..."
+          proj = if project_in_database(project)
+                      Repository::For.entity(project).update(project)
+                    else
+                      Repository::For.entity(project).create(project)
+                    end
+        end
 
-        Success(Value::Result.new(status: :stored, message: project))
+        Success(Value::Result.new(status: :stored, message: nil))
       rescue StandardError => e
         puts e.backtrace.join("\n")
         Failure(Value::Result.new(status: :internal_error, message: DB_ERR_MSG))
@@ -42,18 +44,18 @@ module CodePraise
 
       # following are support methods that other services could use
 
-      def project_from_github(input)
+      def projects_from_github(input)
         Github::ProjectMapper
           .new(App.config.GITHUB_TOKEN)
-          .find(input[:owner_name], input[:project_name])
+          .search(input[:query], input[:order])
       rescue StandardError => e
         puts e.full_message
         raise GH_NOT_FOUND_MSG
       end
 
-      def project_in_database(input)
+      def project_in_database(project)
         Repository::For.klass(Entity::Project)
-          .find_full_name(input[:owner_name], input[:project_name])
+          .find_full_name(project.owner.username, project.name)
       end
     end
   end
