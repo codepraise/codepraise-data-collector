@@ -5,7 +5,7 @@ module CodePraise
     # Value object for any operation result
     Result = Struct.new(:status, :message) do
       SUCCESS = Set.new(
-        %i[ok created updated processing no_content not_modified]
+        %i[ok created stored processing no_content not_modified]
       ).freeze
 
       FAILURE = Set.new(

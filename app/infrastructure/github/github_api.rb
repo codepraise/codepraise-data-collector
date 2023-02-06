@@ -27,18 +27,36 @@ module CodePraise
       end
 
       def git_repo_issues(username, project_name)
-        request = Request.new(@gh_token).issues(username, project_name, '?state=all')
+        request = Request.new(@gh_token).issues(username, project_name, '?state=all&direction=asc&per_page=100')
         result = request.parse
 
-        page_urls = request['Link'].scan(/<(https?:\/\/[\S]+)>/)
-
-        last_page = page_urls.last.first.match(/page=(\d+)/)[1].to_i
-        (2..last_page).each do |page|
-          puts "page: #{page}"
-          result += Request.new(@gh_token).issues(username, project_name, "?state=all&page=#{page}").parse
+        if request['Link']
+          last_page = page_count(request)
+          (2..last_page).each do |page|
+            result += Request.new(@gh_token).issues(username, project_name, "?state=all&direction=asc&per_page=100&page=#{page}").parse
+          end
         end
-        
+
         result
+      end
+
+      def git_repo_search(query, order)
+        request = Request.new(@gh_token).search(query, order)
+        result = request.parse['items']
+
+        if request['Link']
+          last_page = page_count(request)
+          (2..last_page).each do |page|
+            result += Request.new(@gh_token).search(query + "&page=#{page}", order).parse['items']
+          end
+        end
+
+        result
+      end
+
+      def page_count(request)
+        page_urls = request['Link'].scan(/<(https?:\/\/\S+)>/)
+        page_urls.last.first.match(/&page=(\d+)/)[1].to_i
       end
 
       # Sends out HTTP requests to Github
@@ -63,6 +81,11 @@ module CodePraise
 
         def issues(username, project_name, arguments = '')
           get(ENDPOINT + 'repos/' + [username, project_name].join('/') + '/issues' + arguments)
+        end
+
+        def search(query, order)
+          # "https://api.github.com/search/repositories?q=language:ruby+topic:rubygems&per_page=3&sort=updated"
+          get(ENDPOINT + "search/repositories?q=#{query}&per_page=100&sort=updated&order=#{order}")
         end
 
         def get(url)
