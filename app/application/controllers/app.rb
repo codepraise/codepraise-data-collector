@@ -4,8 +4,7 @@ module CodePraise
   # Web App
   class App
     def self.run
-      Service::CollectProjects.new.call(query: 'language:ruby+topic:gem', order: 'desc')
-      Service::CollectProjects.new.call(query: 'language:ruby+topic:gem', order: 'asc')
+      Service::CollectGems.new.call(query: '*', amount: 70)
 
     rescue StandardError => e
       puts e.inspect + '\n' + e.backtrace
