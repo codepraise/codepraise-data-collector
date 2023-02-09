@@ -14,6 +14,7 @@ module CodePraise
 
       def retrieve_all_projects
         projects = Repository::For.klass(Entity::Project).all
+        gem_repo = Repository::For.klass(Entity::Gem)
         results = []
 
         projects.each do |project|
@@ -26,7 +27,7 @@ module CodePraise
               http_url: project.http_url,
               age: (DateTime.now - DateTime.parse(project.project_start)).to_i,
               lifetime: (DateTime.parse(project.project_last_maintain) - DateTime.parse(project.project_start)).to_i,
-              downloads: project.downloads,
+              downloads: gem_repo.find_repo_uri(project.http_url).downloads,
               pulls: project.issues.select { |issue| issue.type == 'pull_request' }.count,
               issues: project.issues.select { |issue| issue.type == 'issue' }.count,
               contributors: project.contributors.count,
@@ -34,6 +35,9 @@ module CodePraise
               project_last_maintain: project.project_last_maintain
             )
           )
+        rescue StandardError => e
+          binding.irb
+          puts e.backtrace.join("\n")
         end
 
         Success(Value::Result.new(status: :ok, message: results))

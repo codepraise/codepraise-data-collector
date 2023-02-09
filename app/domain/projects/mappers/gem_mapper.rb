@@ -59,13 +59,15 @@ module CodePraise
         end
 
         def repo_uri
-          if source_code_uri.include?('github.com')
+          uri = if source_code_uri.include?('github.com')
             source_code_uri[/https?:\/\/github.com\/[\w-]+\/[\w-]+/]
           elsif homepage_uri.include?('github.com')
             homepage_uri[/https?:\/\/github.com\/[\w-]+\/[\w-]+/]
           else
             ''
           end
+
+          uri.start_with?('https') ? uri: uri.sub('http', 'https')
         end
       end
     end

@@ -22,6 +22,11 @@ module CodePraise
         rebuild_entity(db_record)
       end
 
+      def self.find_repo_uri(repo_uri)
+        db_record = Database::GemOrm.first(repo_uri: repo_uri)
+        rebuild_entity(db_record)
+      end
+
       def self.find_or_create(entity)
         find(entity) || create(entity)
       end

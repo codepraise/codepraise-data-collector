@@ -19,7 +19,10 @@ module CodePraise
       # Expects input[:owner_name] and input[:project_name]
       def find_project(input)
         puts "Getting project #{input[:owner_name]}/#{input[:project_name]} from Github..."
-        input[:project] = project_from_github(input)
+
+        db_proj = project_in_database(input)
+        input[:project] = project_from_github(input) if db_proj.nil?
+
         Success(input)
       rescue StandardError => e
         puts e.full_message
@@ -28,11 +31,7 @@ module CodePraise
 
       def store_project(input)
         puts "Storing project #{input[:owner_name]}/#{input[:project_name]} in database..."
-        project = if project_in_database(input)
-                    Repository::For.entity(input[:project]).update(input[:project])
-                  else
-                    Repository::For.entity(input[:project]).create(input[:project])
-                  end
+        project = Repository::For.entity(input[:project]).update_or_create(input[:project]) if input[:project]
 
         Success(Value::Result.new(status: :stored, message: project))
       rescue StandardError => e

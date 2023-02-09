@@ -22,7 +22,6 @@ module CodePraise
       attribute :issues,        Strict::Array.of(Issue)
       attribute :project_start, Strict::String
       attribute :project_last_maintain, Strict::String
-      attribute :downloads,     Strict::Integer
 
       def fullname
         "#{owner.username}/#{name}"
