@@ -19,7 +19,17 @@ module CodePraise
       end
 
       def contributors_data(contributors_url)
-        Request.new(@gh_token).get(contributors_url).parse
+        request = Request.new(@gh_token).get(contributors_url)
+        result = request.parse
+
+        if request['Link']
+          last_page = page_count(request)
+          (2..last_page).each do |page|
+            result += Request.new(@gh_token).get(contributors_url + "?page=#{page}").parse
+          end
+        end
+
+        result
       end
 
       def git_repo_commits(username, project_name)
@@ -56,7 +66,7 @@ module CodePraise
 
       def page_count(request)
         page_urls = request['Link'].scan(/<(https?:\/\/\S+)>/)
-        page_urls.last.first.match(/&page=(\d+)/)[1].to_i
+        page_urls.last.first.match(/[&|?]page=(\d+)/)[1].to_i
       end
 
       # Sends out HTTP requests to Github
