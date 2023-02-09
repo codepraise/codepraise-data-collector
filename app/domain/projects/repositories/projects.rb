@@ -49,6 +49,10 @@ module CodePraise
         find(entity) || create(entity)
       end
 
+      def self.update_or_create(entity)
+        find(entity) ? update(entity) : create(entity)
+      end
+
       def self.create(entity)
         if find(entity) && !find_full_name(entity.owner.username, entity.name)
           PersistProject.new(entity).update_project
@@ -67,6 +71,7 @@ module CodePraise
 
       def self.rebuild_entity(db_record)
         return nil unless db_record
+
 
         Entity::Project.new(
           db_record.to_hash.merge(
@@ -94,7 +99,6 @@ module CodePraise
                               http_url: @entity.http_url,
                               project_start: @entity.project_start,
                               project_last_maintain: @entity.project_last_maintain,
-                              downloads: @entity.downloads,
                               updated_at: Time.now)
 
             @entity.contributors.each do |contributor|

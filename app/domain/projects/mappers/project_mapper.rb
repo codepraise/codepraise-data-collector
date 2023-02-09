@@ -1,8 +1,6 @@
 # frozen_string_literal: true
 
 require_relative 'member_mapper.rb'
-require 'rubygems'
-require 'gems'
 
 module CodePraise
   module Github
@@ -68,8 +66,7 @@ module CodePraise
             contributors: contributors,
             issues: issues,
             project_start: project_start,
-            project_last_maintain: project_last_maintain,
-            downloads: downloads
+            project_last_maintain: project_last_maintain
           )
         end
 
@@ -112,10 +109,6 @@ module CodePraise
 
         def project_last_maintain
           @data['updated_at']
-        end
-
-        def downloads
-          Gems.total_downloads(name)[:total_downloads]
         end
       end
     end
