@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 namespace :run do
   desc 'Run Collecting Infos from Github'
 
@@ -8,13 +9,26 @@ namespace :run do
     def app = CodePraise::App
   end
 
-  task :development => :config do
+  task :dev => :config do
     app.run
+  end
+
+  task :single => :config do
+    app.single
   end
 
   task :export => :config do
     require 'csv'
     app.export
+  end
+end
+
+namespace :worker do
+  namespace :run do
+    desc 'Run the background worker in development mode'
+    task :dev => :config do
+      sh 'RACK_ENV=development bundle exec shoryuken -r ./workers/collect_repo_info_worker.rb -C ./workers/shoryuken_dev.yml'
+    end
   end
 end
 

@@ -5,13 +5,15 @@ module CodePraise
   class App
     def self.run
       Service::CollectGems.new.call(query: '*', amount: 70)
-      gems = Repository::For.klass(Entity::Gem).all
-      gems.each do |gem|
-        puts "Getting info for #{gem.name}..."
-        owner_name, project_name = gem.repo_uri.split('/')[-2..-1]
-        Service::CollectProjectInfo.new.call(owner_name: owner_name, project_name: project_name, gem_name: gem.name)
-      end
 
+    rescue StandardError => e
+      puts e.inspect + '\n' + e.backtrace
+    end
+
+    def self.single
+      repo_uri = 'https://github.com/rails/rails'
+      gem = Repository::For.klass(Entity::Gem).find_repo_uri(repo_uri)
+      Service::CollectProjectInfo.new.call(gem: gem)
     rescue StandardError => e
       puts e.inspect + '\n' + e.backtrace
     end

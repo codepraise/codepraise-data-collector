@@ -18,6 +18,8 @@ module CodePraise
 
       # Expects input[:owner_name] and input[:project_name]
       def find_project(input)
+        gem = input[:gem].nil? ? raise('No gem provided') : input[:gem]
+        input[:owner_name], input[:project_name] = gem.repo_uri.split('/')[-2..-1]
         puts "Getting project #{input[:owner_name]}/#{input[:project_name]} from Github..."
 
         db_proj = project_in_database(input)
@@ -25,7 +27,7 @@ module CodePraise
 
         Success(input)
       rescue StandardError => e
-        puts e.full_message
+        binding.irb
         Failure(Value::Result.new(status: :not_found, message: e.to_s))
       end
 
@@ -35,7 +37,7 @@ module CodePraise
 
         Success(Value::Result.new(status: :stored, message: project))
       rescue StandardError => e
-        puts e.backtrace.join("\n")
+
         Failure(Value::Result.new(status: :internal_error, message: DB_ERR_MSG))
       end
 
@@ -46,13 +48,14 @@ module CodePraise
           .new(App.config.GITHUB_TOKEN)
           .find(input[:owner_name], input[:project_name])
       rescue StandardError => e
-        puts e.full_message
         raise GH_NOT_FOUND_MSG
       end
 
       def project_in_database(input)
         Repository::For.klass(Entity::Project)
           .find_full_name(input[:owner_name], input[:project_name])
+      rescue StandardError => e
+        raise DB_ERR_MSG
       end
     end
   end

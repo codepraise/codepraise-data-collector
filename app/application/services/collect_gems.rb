@@ -42,6 +42,9 @@ module CodePraise
           else
             Repository::For.entity(gem).create(gem)
           end
+
+          clone_queues = [App.config.CLONE_QUEUE_URL]
+          notify_workers(gem, clone_queues)
         end
 
         Success(Value::Result.new(status: :stored, message: nil))
@@ -64,6 +67,15 @@ module CodePraise
       def gem_in_database(gem)
         Repository::For.klass(Entity::Gem)
           .find_name(gem.name)
+      end
+
+      def notify_workers(data, queues)
+        queues.each do |queue_url|
+          Concurrent::Promise.execute do
+            Messaging::Queue.new(queue_url, App.config)
+                            .send(data.to_attr_hash.to_json)
+          end
+        end
       end
     end
   end
