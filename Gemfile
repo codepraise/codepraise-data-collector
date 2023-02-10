@@ -29,6 +29,11 @@ gem 'gems'
 # Database
 gem 'sequel', '~> 5.49'
 
-group :development, :test do
-  gem 'sqlite3', '~> 1.4'
-end
+gem 'pg', '~> 1.2'
+
+# Queues
+gem 'aws-sdk-sqs', '~> 1.46'
+
+# Worker
+gem 'shoryuken', '~> 5.3'
+gem 'rexml', '~> 3.2'

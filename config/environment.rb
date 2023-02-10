@@ -20,7 +20,6 @@ module CodePraise
       ENV['RACK_ENV'] || 'development'
     end
 
-    ENV['DATABASE_URL'] = "sqlite://#{config.DB_FILENAME}"
     DB = Sequel.connect(ENV['DATABASE_URL'])
     def self.DB = DB
   end
