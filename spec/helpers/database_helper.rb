@@ -11,7 +11,7 @@ class DatabaseHelper
   end
 
   def self.reset_database
-    CodePraise::Api.DB.run("DROP SCHEMA public CASCADE;
+    CodePraise::App.DB.run("DROP SCHEMA public CASCADE;
       CREATE SCHEMA public;
       GRANT ALL ON SCHEMA public TO postgres;
       GRANT ALL ON SCHEMA public TO public;

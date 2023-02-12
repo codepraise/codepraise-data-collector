@@ -33,10 +33,11 @@ module CodePraise
       end
 
       def store_gem(input)
+        redis = CodePraise::Cache::Client.new(App.config)
         gems = input[:gems].each do |gem|
-          next if gem.repo_uri.empty?
+          next if gem.repo_uri.empty? || redis.exists_in_set?('done', gem.repo_uri) || redis.exists_in_set?('not_found', gem.repo_uri)
 
-          puts "Storing #{gem.name} in database..."
+          puts "Storing #{gem.repo_uri} in database..."
           if gem_in_database(gem)
             Repository::For.entity(gem).update(gem)
           else
@@ -70,11 +71,10 @@ module CodePraise
       end
 
       def notify_workers(data, queues)
+        puts "Notifying workers to clone #{data.name}..."
         queues.each do |queue_url|
-          Concurrent::Promise.execute do
-            Messaging::Queue.new(queue_url, App.config)
-                            .send(data.to_attr_hash.to_json)
-          end
+          Messaging::Queue.new(queue_url, App.config)
+                          .send(data.to_attr_hash.to_json)
         end
       end
     end

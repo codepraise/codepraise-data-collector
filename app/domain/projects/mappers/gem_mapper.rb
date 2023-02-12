@@ -63,9 +63,8 @@ module CodePraise
             source_code_uri[/https?:\/\/github.com\/[\w-]+\/[\w-]+/]
           elsif homepage_uri.include?('github.com')
             homepage_uri[/https?:\/\/github.com\/[\w-]+\/[\w-]+/]
-          else
-            ''
           end
+          return '' if uri.nil?
 
           uri.start_with?('https') ? uri: uri.sub('http', 'https')
         end

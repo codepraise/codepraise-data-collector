@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'http'
+require 'logger'
 
 module CodePraise
   module Github
@@ -8,6 +9,11 @@ module CodePraise
     class Api
       def initialize(token)
         @gh_token = token
+      end
+
+      def logger
+        log_file = File.open("github_logs.log", "a")
+        Logger.new(log_file)
       end
 
       def git_repo_data(username, project_name)
@@ -27,6 +33,17 @@ module CodePraise
           (2..last_page).each do |page|
             result += Request.new(@gh_token).get(contributors_url + "?page=#{page}").parse
           end
+
+          # promises = (2..last_page).map do |page|
+          #   Concurrent::Promise.execute(executor: :io) do
+          #     result_for_page = Request.new(@gh_token).get(contributors_url + "?page=#{page}").parse
+          #     # logger.info("result_for_page: #{result_for_page}")
+          #     result.concat(result_for_page.to_a)
+          #   end
+          # end
+          #
+          # # Wait for all the promises to complete
+          # Concurrent::Promise.zip(*promises).wait!
         end
 
         result
@@ -45,6 +62,17 @@ module CodePraise
           (2..last_page).each do |page|
             result += Request.new(@gh_token).issues(username, project_name, "?state=all&direction=asc&per_page=100&page=#{page}").parse
           end
+
+          # promises = (2..last_page).map do |page|
+          #   Concurrent::Promise.execute(executor: :io) do
+          #     result_for_page = Request.new(@gh_token).issues(username, project_name, "?state=all&direction=asc&per_page=100&page=#{page}").parse
+          #     # logger.info("result_for_page: #{result_for_page}")
+          #     result.concat(result_for_page.to_a)
+          #   end
+          # end
+          #
+          # # Wait for all the promises to complete
+          # Concurrent::Promise.zip(*promises).wait!
         end
 
         result
@@ -59,6 +87,17 @@ module CodePraise
           (2..last_page).each do |page|
             result += Request.new(@gh_token).search(query + "&page=#{page}", order).parse['items']
           end
+
+          # promises = (2..last_page).map do |page|
+          #   Concurrent::Promise.execute(executor: :io) do
+          #     result_for_page = Request.new(@gh_token).search(query + "&page=#{page}", order).parse['items']
+          #     # logger.info("result_for_page: #{result_for_page}")
+          #     result.concat(result_for_page.to_a)
+          #   end
+          # end
+          #
+          # # Wait for all the promises to complete
+          # Concurrent::Promise.zip(*promises).wait!
         end
 
         result
@@ -105,8 +144,17 @@ module CodePraise
           ).get(url)
 
           Response.new(http_response).tap do |response|
-            raise(response.error) unless response.successful?
+            raise response.error, response.parse['message'] unless response.successful?
+            raise Response::Redirect, response['Location'] if response.code == 301
           end
+        rescue Response::Redirect => e
+          url = e.message
+          get(url)
+        end
+
+        def logger
+          log_file = File.open("github_logs.log", "a")
+          Logger.new(log_file)
         end
       end
 
@@ -114,9 +162,12 @@ module CodePraise
       class Response < SimpleDelegator
         Unauthorized = Class.new(StandardError)
         NotFound = Class.new(StandardError)
+        Redirect = Class.new(StandardError)
+        Forbidden = Class.new(StandardError)
 
         HTTP_ERROR = {
           401 => Unauthorized,
+          403 => Forbidden,
           404 => NotFound
         }.freeze
 

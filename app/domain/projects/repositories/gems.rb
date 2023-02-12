@@ -36,13 +36,13 @@ module CodePraise
       end
 
       def self.update(entity)
-        db_issue = Database::GemOrm.where(id: entity.id)
-        db_issue.update(name: entity.name,
-                        source_code_uri: entity.source_code_uri,
-                        homepage_uri: entity.homepage_uri,
-                        downloads: entity.downloads,
-                        repo_uri: entity.repo_uri,
-                        updated_at: Time.now)
+        db_gem = Database::GemOrm.where(id: entity.id)
+        db_gem.update(name: entity.name,
+                      source_code_uri: entity.source_code_uri,
+                      homepage_uri: entity.homepage_uri,
+                      downloads: entity.downloads,
+                      repo_uri: entity.repo_uri,
+                      updated_at: Time.now)
       end
 
       def self.rebuild_entity(db_record)

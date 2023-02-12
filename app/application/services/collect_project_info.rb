@@ -26,9 +26,12 @@ module CodePraise
         input[:project] = project_from_github(input) if db_proj.nil?
 
         Success(input)
+      rescue CodePraise::Github::Api::Response::Forbidden => e
+        raise e
+      rescue CodePraise::Github::Api::Response::NotFound => e
+        raise e
       rescue StandardError => e
-        binding.irb
-        Failure(Value::Result.new(status: :not_found, message: e.to_s))
+        Failure(Value::Result.new(status: :cannot_process, message: e.message))
       end
 
       def store_project(input)
@@ -37,7 +40,6 @@ module CodePraise
 
         Success(Value::Result.new(status: :stored, message: project))
       rescue StandardError => e
-
         Failure(Value::Result.new(status: :internal_error, message: DB_ERR_MSG))
       end
 
@@ -47,8 +49,6 @@ module CodePraise
         Github::ProjectMapper
           .new(App.config.GITHUB_TOKEN)
           .find(input[:owner_name], input[:project_name])
-      rescue StandardError => e
-        raise GH_NOT_FOUND_MSG
       end
 
       def project_in_database(input)

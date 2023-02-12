@@ -37,3 +37,6 @@ gem 'aws-sdk-sqs', '~> 1.46'
 # Worker
 gem 'shoryuken', '~> 5.3'
 gem 'rexml', '~> 3.2'
+
+gem 'redis', '~> 4.5'
+gem 'redis-rack-cache', '~> 2.2'

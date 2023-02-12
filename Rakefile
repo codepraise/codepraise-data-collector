@@ -29,6 +29,10 @@ namespace :worker do
     task :dev => :config do
       sh 'RACK_ENV=development bundle exec shoryuken -r ./workers/collect_repo_info_worker.rb -C ./workers/shoryuken_dev.yml'
     end
+
+    task :dead => :config do
+      sh 'RACK_ENV=development bundle exec shoryuken -r ./workers/collect_repo_info_worker.rb -C ./workers/shoryuken_dead.yml'
+    end
   end
 end
 
@@ -48,26 +52,14 @@ namespace :db do
     Sequel::Migrator.run(app.DB, 'app/infrastructure/database/migrations')
   end
 
-  desc 'Wipe records from all tables'
-  task :wipe => :config do
+  desc 'Reset dev or test database'
+  task :reset => :config do
     if app.environment == :production
-      puts 'Do not damage production database!'
+      puts 'Cannot reset production database!'
       return
     end
 
-    require_app('infrastructure')
-    require_relative 'spec/helpers/database_helper'
-    DatabaseHelper.wipe_database
-  end
-
-  desc 'Delete dev or test database file (set correct RACK_ENV)'
-  task :drop => :config do
-    if app.environment == :production
-      puts 'Do not damage production database!'
-      return
-    end
-
-    FileUtils.rm(app.config.DB_FILENAME)
-    puts "Deleted #{app.config.DB_FILENAME}"
+    require_relative 'spec/helpers/database_helper.rb'
+    DatabaseHelper.reset_database
   end
 end

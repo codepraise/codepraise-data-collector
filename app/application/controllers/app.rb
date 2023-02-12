@@ -4,7 +4,7 @@ module CodePraise
   # Web App
   class App
     def self.run
-      Service::CollectGems.new.call(query: '*', amount: 70)
+      Service::CollectGems.new.call(query: '*', amount: 500)
 
     rescue StandardError => e
       puts e.inspect + '\n' + e.backtrace
@@ -13,9 +13,10 @@ module CodePraise
     def self.single
       repo_uri = 'https://github.com/rails/rails'
       gem = Repository::For.klass(Entity::Gem).find_repo_uri(repo_uri)
-      Service::CollectProjectInfo.new.call(gem: gem)
+      result = Service::CollectProjectInfo.new.call(gem: gem)
+      raise(result.failure.message) unless result.success?
     rescue StandardError => e
-      puts e.inspect + '\n' + e.backtrace
+      puts e.message
     end
 
     def self.export
