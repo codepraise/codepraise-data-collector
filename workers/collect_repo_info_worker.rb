@@ -23,7 +23,7 @@ module CodePraise
     end
 
     def self.logger
-      log_file = File.open("logs.log", "a")
+      log_file = File.open("log/logs.log", "a")
       Logger.new(log_file)
     end
 
@@ -49,6 +49,7 @@ module CodePraise
       unless Worker.redis.get(@gem.repo_uri) || Worker.redis.exists_in_set?('done', @gem.repo_uri) || Worker.redis.exists_in_set?('not_found', @gem.repo_uri)
         Worker.redis.set(@gem.repo_uri, 'processing')
         Worker.logger.info("Processing #{@gem.repo_uri}")
+
         result = Service::CollectProjectInfo.new.call(gem: @gem)
         raise result.failure.message unless result.success?
 
@@ -60,25 +61,22 @@ module CodePraise
       sqs_msg.delete
     rescue CodePraise::Github::Api::Response::Forbidden => e
       Worker.logger.error("Forbidden: #{request.to_s}\n Message: #{e.message}")
-
       Worker.redis.delete(@gem.repo_uri)
+
       if e.message.include?'You have exceeded a secondary rate limit.'
         sqs_msg.change_visibility(visibility_timeout: 60)
       elsif e.message.include?'API rate limit exceeded'
-        sqs_msg.change_visibility(visibility_timeout: 7500)
+        sqs_msg.change_visibility(visibility_timeout: 3600)
 
-        unless Worker.redis.get('sleep')
-          Shoryuken.logger.info('Sleeping for 2 hours')
-          Worker.redis.set('sleep', 'true')
-          sleep 7200
-          Worker.redis.delete('sleep')
-        end
+        Shoryuken.logger.error('API rate limit exceeded, sleeping for 1 hour')
+        sleep 3600
+        Shoryuken.logger.info('Wake up')
       end
     rescue CodePraise::Github::Api::Response::NotFound => e
       Worker.logger.error("NotFound: #{request.to_s}\n Message: #{e.message}")
-
       Worker.redis.add_to_set('not_found', @gem.repo_uri)
       Worker.redis.delete(@gem.repo_uri)
+
       sqs_msg.delete
     rescue StandardError => e
       Worker.logger.error("Exception: #{request.to_s}\n Message: #{e.message}")
