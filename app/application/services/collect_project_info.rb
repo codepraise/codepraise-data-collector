@@ -37,6 +37,7 @@ module CodePraise
       def store_project(input)
         puts "Storing project #{input[:owner_name]}/#{input[:project_name]} in database..."
         project = Repository::For.entity(input[:project]).update_or_create(input[:project]) if input[:project]
+        appraise_project(input[:owner_name], input[:project_name]) if project
 
         Success(Value::Result.new(status: :stored, message: project))
       rescue StandardError => e
@@ -56,6 +57,11 @@ module CodePraise
           .find_full_name(input[:owner_name], input[:project_name])
       rescue StandardError => e
         raise DB_ERR_MSG
+      end
+
+      def appraise_project(owner_name, project_name)
+        puts "Notify worker to appraise project #{owner_name}/#{project_name}..."
+        Gateway::Api.new(CodePraise::App.config).appraise(owner_name, project_name)
       end
     end
   end
