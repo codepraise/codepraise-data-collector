@@ -50,8 +50,11 @@ module CodePraise
         Worker.redis.set(@gem.repo_uri, 'processing')
         Worker.logger.info("Processing #{@gem.repo_uri}")
 
-        result = Service::CollectProjectInfo.new.call(gem: @gem)
-        raise result.failure.message unless result.success?
+        owner_name, project_name = @gem.repo_uri.split('/')[-2..-1]
+        unless Repository::For.klass(Entity::Project).find_full_name(owner_name, project_name)
+          result = Service::CollectProjectInfo.new.call(gem: @gem)
+          raise result.failure.message unless result.success?
+        end
 
         Worker.redis.add_to_set('done', @gem.repo_uri)
         Worker.redis.delete(@gem.repo_uri)

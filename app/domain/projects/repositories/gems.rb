@@ -42,6 +42,7 @@ module CodePraise
                       homepage_uri: entity.homepage_uri,
                       downloads: entity.downloads,
                       repo_uri: entity.repo_uri,
+                      valid: entity.valid,
                       updated_at: Time.now)
       end
 
@@ -54,7 +55,8 @@ module CodePraise
           source_code_uri: db_record.source_code_uri,
           homepage_uri: db_record.homepage_uri,
           downloads: db_record.downloads,
-          repo_uri: db_record.repo_uri
+          repo_uri: db_record.repo_uri,
+          valid: db_record.valid
         )
       end
 
