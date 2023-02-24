@@ -12,6 +12,7 @@ Sequel.migration do
       String  :homepage_uri, null: false
       String  :repo_uri, null: false
       Integer :downloads, null: false
+      TrueClass :valid, default: false
 
       DateTime :created_at
       DateTime :updated_at

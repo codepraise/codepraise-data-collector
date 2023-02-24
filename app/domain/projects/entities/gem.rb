@@ -15,6 +15,7 @@ module CodePraise
       attribute :homepage_uri,  Strict::String
       attribute :repo_uri,      Strict::String
       attribute :downloads,     Strict::Integer
+      attribute :valid,         Strict::Bool
 
       def to_attr_hash
         to_hash.reject { |key, _| %i[id].include? key }

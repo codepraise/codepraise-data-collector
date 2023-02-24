@@ -36,7 +36,8 @@ module CodePraise
             downloads: downloads,
             source_code_uri: source_code_uri,
             homepage_uri: homepage_uri,
-            repo_uri: repo_uri
+            repo_uri: repo_uri,
+            valid: valid
           )
         end
 
@@ -59,14 +60,18 @@ module CodePraise
         end
 
         def repo_uri
-          uri = if source_code_uri.include?('github.com')
-            source_code_uri[/https?:\/\/github.com\/[\w-]+\/[\w-]+/]
-          elsif homepage_uri.include?('github.com')
-            homepage_uri[/https?:\/\/github.com\/[\w-]+\/[\w-]+/]
+          uri = if source_code_uri =~ %r{^https?://github\.com/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$}
+            source_code_uri
+          elsif homepage_uri =~ %r{^https?://github\.com/([a-zA-Z0-9_-]+)/([a-zA-Z0-9_-]+)$}
+            homepage_uri
           end
           return '' if uri.nil?
 
           uri.start_with?('https') ? uri: uri.sub('http', 'https')
+        end
+
+        def valid
+          !repo_uri.empty?
         end
       end
     end

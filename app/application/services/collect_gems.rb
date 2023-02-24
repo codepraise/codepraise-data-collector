@@ -35,14 +35,14 @@ module CodePraise
       def store_gem(input)
         redis = CodePraise::Cache::Client.new(App.config)
         gems = input[:gems].each do |gem|
-          next if gem.repo_uri.empty? || redis.exists_in_set?('done', gem.repo_uri) || redis.exists_in_set?('not_found', gem.repo_uri)
-
-          puts "Storing #{gem.repo_uri} in database..."
+          puts "Storing #{gem.name} in database..."
           if gem_in_database(gem)
             Repository::For.entity(gem).update(gem)
           else
             Repository::For.entity(gem).create(gem)
           end
+
+          next if !gem.valid || redis.exists_in_set?('done', gem.repo_uri) || redis.exists_in_set?('not_found', gem.repo_uri)
 
           clone_queues = [App.config.CLONE_QUEUE_URL]
           notify_workers(gem, clone_queues)
