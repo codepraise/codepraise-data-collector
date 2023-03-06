@@ -58,3 +58,4 @@ build-iPhoneSimulator/
 .idea
 *.db
 config/secrets.yml
+log/logs.log
