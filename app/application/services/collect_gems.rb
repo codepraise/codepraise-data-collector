@@ -19,12 +19,7 @@ module CodePraise
       def search_gem(input)
         puts "Getting gems from Rubygems..."
 
-        input[:gems] = []
-        per_page = 30 # fixed by rubygems
-        pages = (input[:amount].to_f / per_page).ceil
-        (1..pages).each do |page|
-          input[:gems] += gems_from_rubygems(input[:query], page)
-        end
+        input[:gems] = gems_from_rubygems(input[:query], input[:page])
 
         Success(input)
       rescue StandardError => e

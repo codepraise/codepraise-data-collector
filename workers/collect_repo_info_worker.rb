@@ -51,7 +51,7 @@ module CodePraise
         Worker.logger.info("Processing #{@gem.repo_uri}")
 
         owner_name, project_name = @gem.repo_uri.split('/')[-2..-1]
-        unless Repository::For.klass(Entity::Project).find_full_name(owner_name, project_name)
+        unless Repository::For.klass(Entity::Project).find_name(project_name)
           result = Service::CollectProjectInfo.new.call(gem: @gem)
           raise result.failure.message unless result.success?
         end

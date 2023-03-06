@@ -31,6 +31,11 @@ module CodePraise
         end.compact
       end
 
+      def self.find_name(name)
+        db_record = Database::ProjectOrm.where(name: name).first
+        rebuild_entity(db_record)
+      end
+
       def self.find(entity)
         find_origin_id(entity.origin_id)
       end
