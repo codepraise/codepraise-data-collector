@@ -34,6 +34,10 @@ module CodePraise
         @redis.sismember(key, value)
       end
 
+      def get_set(key)
+        @redis.smembers(key)
+      end
+
       def wipe
         keys.each { |key| @redis.del(key) }
       end

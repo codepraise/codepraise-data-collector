@@ -8,42 +8,34 @@ module CodePraise
     class GetProjectsInfo
       include Dry::Transaction
 
-      step :retrieve_all_projects
+      step :retrieve_projects
 
       private
 
-      def retrieve_all_projects
-        projects = Repository::For.klass(Entity::Project).all
+      def retrieve_projects(input)
+        project = Repository::For.klass(Entity::Project).find_id(input[:id])
         gem_repo = Repository::For.klass(Entity::Gem)
-        results = []
+        gem = gem_repo.find_repo_uri(project.http_url) || gem_repo.find_name(project.name)
 
-        projects.each do |project|
-          results.append(
-            OpenStruct.new(
-              id: project.id,
-              origin_id: project.origin_id,
-              full_name: project.fullname,
-              name: project.name,
-              http_url: project.http_url,
-              age: (DateTime.now - DateTime.parse(project.project_start)).to_i,
-              lifetime: (DateTime.parse(project.project_last_maintain) - DateTime.parse(project.project_start)).to_i,
-              downloads: gem_repo.find_repo_uri(project.http_url).downloads,
-              pulls: project.issues.select { |issue| issue.type == 'pull_request' }.count,
-              issues: project.issues.select { |issue| issue.type == 'issue' }.count,
-              contributors: project.contributors.count,
-              project_start: project.project_start,
-              project_last_maintain: project.project_last_maintain
-            )
-          )
-        rescue StandardError => e
-          binding.irb
-          puts e.backtrace.join("\n")
-        end
+        result = OpenStruct.new(
+                  id: project.id,
+                  origin_id: project.origin_id,
+                  full_name: project.fullname,
+                  name: project.name,
+                  http_url: project.http_url,
+                  age: ((DateTime.now - DateTime.parse(project.project_start)).to_i + 1) / 365.0,
+                  lifetime: ((DateTime.parse(project.project_last_maintain) - DateTime.parse(project.project_start)).to_i + 1) / 365.0,
+                  downloads: gem.downloads,
+                  pulls: project.issues.select { |issue| issue.type == 'pull_request' }.count,
+                  issues: project.issues.select { |issue| issue.type == 'issue' }.count,
+                  contributors: project.contributors.count,
+                  project_start: DateTime.parse(project.project_start).strftime('%Y-%m-%d'),
+                  project_last_maintain: DateTime.parse(project.project_last_maintain).strftime('%Y-%m-%d')
+                 )
 
-        Success(Value::Result.new(status: :ok, message: results))
+        Success(Value::Result.new(status: :ok, message: result))
       rescue StandardError => e
-        puts e.backtrace.join("\n")
-        Failure(Value::Result.new(status: :internal_error, message: DB_ERR_MSG))
+        Failure(Value::Result.new(status: :internal_error, message: 'Error when getting project info'))
       end
     end
   end

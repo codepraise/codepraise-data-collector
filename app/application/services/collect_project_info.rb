@@ -54,7 +54,7 @@ module CodePraise
 
       def project_in_database(input)
         Repository::For.klass(Entity::Project)
-          .find_full_name(input[:owner_name], input[:project_name])
+          .find_name(input[:project_name])
       rescue StandardError => e
         raise DB_ERR_MSG
       end
