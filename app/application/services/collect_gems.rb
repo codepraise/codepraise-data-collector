@@ -18,7 +18,8 @@ module CodePraise
 
       def search_gem(input)
         puts "Getting gems from Rubygems..."
-
+        
+        p "====== Letter: #{input[:query]}, Page:#{input[:page]} ====="
         input[:gems] = gems_from_rubygems(input[:query], input[:page])
 
         Success(input)
@@ -30,17 +31,22 @@ module CodePraise
       def store_gem(input)
         redis = CodePraise::Cache::Client.new(App.config)
         gems = input[:gems].each do |gem|
-          puts "Storing #{gem.name} in database..."
-          if gem_in_database(gem)
-            Repository::For.entity(gem).update(gem)
-          else
+
+          unless gem_in_database(gem)
             Repository::For.entity(gem).create(gem)
+            puts "Storing #{gem.name} in database..."
           end
+          # if gem_in_database(gem)
+          #   Repository::For.entity(gem).update(gem)
+          # else
+          #   Repository::For.entity(gem).create(gem)
+          #   puts "Storing #{gem.name} in database..."
+          # end
 
-          next if !gem.valid || redis.exists_in_set?('done', gem.repo_uri) || redis.exists_in_set?('not_found', gem.repo_uri)
+          # next if !gem.valid || redis.exists_in_set?('done', gem.repo_uri) || redis.exists_in_set?('not_found', gem.repo_uri)
 
-          clone_queues = [App.config.CLONE_QUEUE_URL]
-          notify_workers(gem, clone_queues)
+          # clone_queues = [App.config.CLONE_QUEUE_URL]
+          # notify_workers(gem, clone_queues)
         end
 
         Success(Value::Result.new(status: :stored, message: nil))

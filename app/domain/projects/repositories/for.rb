@@ -13,7 +13,7 @@ module CodePraise
         Entity::Project => Projects,
         Entity::Member => Members,
         Entity::Issue => Issues,
-        Entity::Gem => Gems,
+        Entity::Gem => Gems
       }.freeze
 
       def self.klass(entity_klass)

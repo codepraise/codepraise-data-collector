@@ -40,3 +40,4 @@ gem 'rexml', '~> 3.2'
 
 gem 'redis', '~> 4.5'
 gem 'redis-rack-cache', '~> 2.2'
+gem 'pry'

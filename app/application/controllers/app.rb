@@ -1,17 +1,28 @@
 # frozen_string_literal: true
+require 'pry'
 
 module CodePraise
   # Web App
   class App
     def self.run
-      Service::CollectGems.new.call(query: '*', amount: 500)
 
+      ('a'..'z').each do |letter|
+        (1..200).each do |number|
+          sleep 2
+          result = Service::CollectGems.new.call(query: letter, page: number)
+          if result.failure?
+            puts "停止於 letter: #{letter}, page: #{number}"
+            break
+          end
+        end
+      end
+    
     rescue StandardError => e
       puts e.inspect + '\n' + e.backtrace
     end
 
     def self.single
-      repo_uri = 'https://github.com/rails/rails'
+      repo_uri = 'https://github.com/aws/aws-sdk-ruby'
       gem = Repository::For.klass(Entity::Gem).find_repo_uri(repo_uri)
       result = Service::CollectProjectInfo.new.call(gem: gem)
       raise(result.failure.message) unless result.success?

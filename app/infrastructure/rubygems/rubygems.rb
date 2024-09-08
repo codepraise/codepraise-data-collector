@@ -6,7 +6,7 @@ module CodePraise
   module Rubygems
     # Library for Github Web API
     class Api
-      def search(query = '*', page = 1)
+      def search(query = '*', page = 2)
         Gems.search(query, {page:})
       end
     end

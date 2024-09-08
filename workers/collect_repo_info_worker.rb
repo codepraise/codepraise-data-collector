@@ -64,7 +64,7 @@ module CodePraise
       sqs_msg.delete
     rescue CodePraise::Github::Api::Response::Forbidden => e
       Worker.logger.error("Forbidden: #{request.to_s}\n Message: #{e.message}")
-      Worker.redis.delete(@gem.repo_uri)
+      # Worker.redis.delete(@gem.repo_uri)
 
       if e.message.include?'You have exceeded a secondary rate limit.'
         sqs_msg.change_visibility(visibility_timeout: 60)

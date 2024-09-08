@@ -38,6 +38,7 @@ module CodePraise
         puts "Storing project #{input[:owner_name]}/#{input[:project_name]} in database..."
         project = Repository::For.entity(input[:project]).update_or_create(input[:project]) if input[:project]
         appraise_project(input[:owner_name], input[:project_name]) if project
+        print("123")
 
         Success(Value::Result.new(status: :stored, message: project))
       rescue StandardError => e
